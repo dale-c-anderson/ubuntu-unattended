@@ -3,7 +3,7 @@ set -e
 
 # set defaults
 default_hostname="$(hostname)"
-default_domain="netson.local"
+default_domain="acro.local"
 default_puppetmaster="foreman.netson.nl"
 tmp="/root/"
 
@@ -84,12 +84,25 @@ sed -i "s@ubuntu.ubuntu@$fqdn@g" /etc/hosts
 sed -i "s@ubuntu@$hostname@g" /etc/hosts
 hostname "$hostname"
 
+
+# apply passwordless sudo
+export SUDOERS="/etc/sudoers.d/90-passwordless-sudoers"
+echo "## ALWAYS USE visudo TO EDIT SUDOERS FILES" | (EDITOR="tee -a" visudo -f "$SUDOERS")
+echo '%sudo ALL = (ALL) NOPASSWD: ALL' | (EDITOR="tee -a" visudo -f "$SUDOERS")
+
+
 # update repos
 apt-get -y update
 apt-get -y upgrade
 apt-get -y dist-upgrade
 apt-get -y autoremove
 apt-get -y purge
+
+
+# Install SSH server and remove password logins
+apt-get -y install openssh-server
+sed -i "s@#PasswordAuthentication yes@PasswordAuthentication no@g" /etc/ssh/sshd_config
+
 
 # install puppet
 if [[ include_puppet_repo -eq 1 ]]; then
@@ -120,7 +133,7 @@ pluginsync=true\n\
         if [[ ! -f $tmp/finish.sh ]]; then
             echo -n " downloading finish.sh: "
             cd $tmp
-            download "https://raw.githubusercontent.com/netson/ubuntu-unattended/master/finish.sh"
+            download "https://raw.githubusercontent.com/dale-c-anderson/ubuntu-unattended/acro/finish.sh"
         fi
 
         # set proper permissions on finish script
