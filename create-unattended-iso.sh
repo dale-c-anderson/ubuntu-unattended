@@ -100,7 +100,7 @@ read -sp " please enter your preferred password: " password
 printf "\n"
 read -sp " confirm your preferred password: " password2
 printf "\n"
-read -ep " Make ISO bootable via USB: " -i "yes" bootable
+read -ep " Make ISO bootable via USB: " -i "no" bootable
 
 # check if the passwords match to prevent headaches
 if [[ "$password" != "$password2" ]]; then
@@ -143,6 +143,7 @@ fi
 echo " remastering your iso file"
 mkdir -p $tmp
 mkdir -p $tmp/iso_org
+rm -rf $tmp/iso_new || true # Just in case we run this script more than once.
 mkdir -p $tmp/iso_new
 
 # mount the image
@@ -182,6 +183,11 @@ sed -i "s@{{username}}@$username@g" $tmp/iso_new/preseed/$seed_file
 sed -i "s@{{pwhash}}@$pwhash@g" $tmp/iso_new/preseed/$seed_file
 sed -i "s@{{hostname}}@$hostname@g" $tmp/iso_new/preseed/$seed_file
 sed -i "s@{{timezone}}@$timezone@g" $tmp/iso_new/preseed/$seed_file
+
+
+echo "Pausing now so you can make manual modifications from another terminal. press enter when done."
+read -r DRAMATIC_PAUSE
+
 
 # calculate checksum for seed file
 seed_checksum=$(md5sum $tmp/iso_new/preseed/$seed_file)
