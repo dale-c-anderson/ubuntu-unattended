@@ -47,7 +47,7 @@ echo " preparing your server; this may take a few minutes ..."
 
 # Put public key(s) in place so user can log in.
 (umask 077 && mkdir .ssh && wget -O .ssh/authorized_keys $ssh_pubkey_url)
-chown -r 1000:1000 .ssh
+chown -R 1000:1000 .ssh
 
 # set fqdn
 fqdn="$hostname.$domain"
